@@ -1,0 +1,18 @@
+
+.side-bar{
+  position: fixed;
+  bottom: 0;
+  top: 0;
+  left: 0;
+  width: 300px;
+
+  color: whitesmoke;
+  background-color: black;
+  display: flex;
+  flex-direction: column;
+  
+  
+  border-right-width: 1px;
+  border-right-color: grey;
+  border-right-style: solid;
+}

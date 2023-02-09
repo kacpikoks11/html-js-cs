@@ -1,0 +1,370 @@
+<HTML>
+
+<HEAD>
+    <TITLE>kacpikoks</TITLE>
+</HEAD>
+
+<BODY bgcolor="#030200">
+    <h1>Game</h1>
+    <canvas id="game" width="800" height="600">
+    </canvas>
+
+    <script>
+      
+	var audio = new Audio("sound.mp3")
+	var fps = 144
+	var canvas = document.getElementById("game")
+	var ctx = canvas.getContext("2d")
+	var left = false
+	var right = false
+	var jump = false
+	var can_move = true
+	var vel = 0
+	var is_playing = 0
+	var speed = 2
+	var gravityForce = 0
+	var jump_time = 0
+	var jump_animation = 0
+	var jump_an_help = 0
+
+	var model_left = new Image()
+	model_left.src = "model_left.png"
+	var model_right = new Image()
+	model_right.src = "model_right.png"
+	var model_jump_left = new Image()
+	model_jump_left.src = "model_jumping_left.png"
+	var model_jump_right = new Image()
+	model_jump_right.src = "model_jumping_right.png"
+	var model_90 = new Image()
+	model_90.src = "model_90.png"
+	var model_180 = new Image()
+	model_180.src = "model_180.png"
+	var model_270 = new Image()
+	model_270.src = "model_270.png"
+
+
+
+
+	var playercoords = [50, 500, 50, 50]
+	var floors = [
+		[
+			[-1, 0, 0, 600],
+			[800, 0, 0, 600],
+			[0, 590, 800, 10],
+			[600, 540, 100, 50],
+			[400, 450, 50, 50],
+			[500, 300, 50, 50],
+			[300, 150, 50, 50],
+			[120, 300, 50, 50]
+		],
+		[
+			[-1, 0, 0, 600],
+			[800, 0, 0, 600],
+			[600, 500, 100, 50],
+			[300, 450, 100, 30],
+			[150, 300, 50, 50]
+		],
+		[
+			[500, 550, 200, 30],
+			[200, 400, 100, 100],
+			[0, 200, 50, 100],
+			[-1, 0, 0, 600],
+			[800, 0, 0, 600],
+			[600, 200, 200, 10]
+		],
+		[
+			[-1, 0, 0, 600],
+			[800, 0, 0, 600],
+			[300, 500, 75, 10],
+			[100, 300, 100, 10, 1, 100, 500]
+		],
+		[
+			[-1, 0, 0, 600],
+			[800, 0, 0, 600],
+			[600,590,100,10],
+			[0,590,200,10],
+			[190,500,10,100],
+			[100,100,10,300],
+			[70,300,30,10]
+		
+		],
+		[
+			[-1, 0, 0, 600],
+			[800, 0, 0, 600],
+			[250,590,150,10],
+			
+			[0,400,400,10],
+			[100,300,220,10],
+			[390,250,10,150],
+			[310,50,10,250],
+			
+			[600,400,100,10]
+			
+		],
+		[
+			[-1, 0, 0, 600],
+			[800, 0, 0, 600],
+		]
+
+	]
+	var level = 0;
+
+	window.onload = function() {
+		setInterval(gameloop, 1000 / fps)
+		document.addEventListener("keydown", keydown);
+		document.addEventListener("keyup", keyup);
+	}
+
+	function gameloop() {
+		gameLogic()
+		printScreen()
+		if(!is_playing && right)
+			audio.play()
+	}
+
+	function gameLogic() {
+		movingBlock()
+		if (gravityForce == 0) {
+			if (right && can_move)
+				if (!sideCollision(playercoords[0] + speed, playercoords[1])) {
+					vel = speed
+					playercoords[0] += speed
+				}
+			if (left && can_move)
+				if (!sideCollision(playercoords[0] - speed, playercoords[1])) {
+					playercoords[0] -= speed
+					vel = -speed
+				}
+		}
+		if (jump && gravityForce == 0) {
+			if (jump_time < 200 || jump_time > 100000)
+				gravityForce = -1
+			else if (jump_time < 400)
+				gravityForce = -2
+			else if (jump_time < 600)
+				gravityForce = -3
+			else if (jump_time < 800)
+				gravityForce = -4
+			else if (jump_time < 1000)
+				gravityForce = -5
+			else
+				gravityForce = -6
+			jump_time = 0
+			jump = false
+			can_move = true
+			if (left && right)
+				vel = 0
+			else if (right)
+				vel = speed
+			else if (left)
+				vel = -speed
+		}
+		if (sideCollision(playercoords[0] + vel, playercoords[1]) &&
+			gravityForce != 0)
+			vel = -vel
+		if (gravityForce != 0)
+			playercoords[0] += vel
+
+
+
+		//gravity
+		if (gravityForce < 5)
+			gravityForce += 0.05
+		if (bottomCollision(playercoords[0], playercoords[1] +
+				gravityForce) && gravityForce > 0) {
+			gravityForce = 0
+			vel = 0
+		}
+		if (!bottomCollision(playercoords[0], playercoords[1] +
+				gravityForce))
+			if (playercoords[1] + gravityForce < 0) {
+				playercoords[1] += (gravityForce + 600)
+				level += 1
+			}
+		else if (playercoords[1] + gravityForce > 600) {
+			playercoords[1] += (gravityForce - 600)
+			level -= 1
+		} else
+			playercoords[1] += gravityForce
+		else
+			gravityForce = 0.05
+	}
+
+	function movingBlock() {
+		function floorCollision(X, Y, floor_coords) {
+			if (Y + playercoords[3] < floor_coords[1])
+				return false
+			if (Y > floor_coords[1] + floor_coords[3])
+				return false
+			if (X + playercoords[2] < floor_coords[0])
+				return false
+			if (X > floor_coords[0] + floor_coords[2])
+				return false
+			return true
+		}
+		for (var i = 0; i < floors[level].length; ++i)
+			if (floors[level][i].length == 7) {
+				if (floors[level][i][0] + floors[level][i][4] < floors[level][i][5] || floors[level][i][0] + floors[level][i][4] > floors[level][i][6])
+					floors[level][i][4] *= -1
+				floors[level][i][0] += floors[level][i][4]
+				if (floorCollision(playercoords[0], playercoords[1] + 0.05, floors[level][i]))
+					playercoords[0] += floors[level][i][4]
+			}
+	}
+
+
+	// side/bottom collision
+	function sideCollision(X, Y) {
+		for (var i = 0; i < floors[level].length; ++i) {
+			if (Y + playercoords[3] < floors[level][i][1])
+				continue
+			if (Y > floors[level][i][1] + floors[level][i][3])
+				continue
+			if (X > floors[level][i][0] + floors[level][i][2])
+				continue
+			if (X + playercoords[2] < floors[level][i][0])
+				continue
+
+			if (floors[level][i].length == 7)
+				vel = -floors[level][i][4]
+			return true
+		}
+		return false
+	}
+
+	function bottomCollision(X, Y) {
+		for (var i = 0; i < floors[level].length; ++i) {
+			if (X > floors[level][i][0] + floors[level][i][2])
+				continue
+			if (X + playercoords[2] < floors[level][i][0])
+				continue
+			if (Y > floors[level][i][1] + floors[level][i][3])
+				continue
+			if (Y + playercoords[3] < floors[level][i][1])
+				continue
+			return true
+		}
+		return false
+	}
+
+
+
+
+	// control
+	function keydown(evt) {
+		switch (evt.keyCode) {
+			case 87:
+				if (can_move)
+					jump_time = -new Date().getTime();
+				can_move = false
+				break;
+
+			case 32:
+				if (can_move)
+					jump_time = -new Date().getTime();
+				can_move = false
+				break;
+
+			case 65:
+				left = true;
+				break;
+			case 68:
+				right = true;
+				break;
+		}
+	}
+
+	function keyup(evt) {
+		switch (evt.keyCode) {
+			case 87:
+				jump = true;
+				jump_time += new Date().getTime();
+				console.log(jump_time);
+				break;
+			case 32:
+				jump = true;
+				jump_time += new Date().getTime();
+				break;
+			case 65:
+				left = false;
+				break;
+			case 68:
+				right = false;
+				break;
+		}
+	}
+
+	function printScreen() {
+		//canvas
+		ctx.fillStyle = "#8c8b65"
+		ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+		//our player
+		//ctx.fillStyle = "#00F"
+		//ctx.fillRect(playercoords[0], playercoords[1], playercoords[2],
+		//	   playercoords[3]);
+
+		var draw_image = model_right
+		if (can_move == true)
+			if (left)
+				draw_image = model_left
+		if (can_move == false && left)
+			draw_image = model_jump_left
+		else if (can_move == false)
+			draw_image = model_jump_right
+		if (gravityForce != 0 && vel >= 0) {
+			switch (jump_animation) {
+				case 0:
+					draw_image = model_90;
+					break;
+				case 1:
+					draw_image = model_180;
+					break;
+				case 2:
+					draw_image = model_270;
+					break;
+				case 3:
+					draw_image = model_right;
+					break;
+			}
+			jump_an_help = (jump_an_help + 1) % 25
+			if (jump_an_help == 0)
+				jump_animation = (jump_animation + 1) % 3
+		} else if (gravityForce != 0 && vel < 0) {
+			switch (jump_animation) {
+				case 0:
+					draw_image = model_270;
+					break;
+				case 1:
+					draw_image = model_180;
+					break;
+				case 2:
+					draw_image = model_90;
+					break;
+				case 3:
+					draw_image = model_right;
+					break;
+			}
+			jump_an_help = (jump_an_help + 1) % 25
+			if (jump_an_help == 0)
+				jump_animation = (jump_animation + 1) % 3
+		} else
+			jump_animation = 0
+
+		ctx.drawImage(draw_image, playercoords[0], playercoords[1])
+
+
+		//floor and obsticles
+		ctx.fillStyle = "#000000"
+		for (var i = 0; i < floors[level].length; ++i)
+			ctx.fillRect(floors[level][i][0], floors[level][i][1],
+				floors[level][i][2], floors[level][i][3]);
+	}
+
+
+
+
+    </script>
+</BODY>
+
+</HTML>

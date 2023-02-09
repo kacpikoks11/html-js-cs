@@ -1,0 +1,143 @@
+<HTML>
+   <HEAD>
+      <TITLE>kacpikoks</TITLE>
+   </HEAD>
+   <BODY>
+	<h1>snake</h1>
+	<canvas id = "game" width = "801" height = "601">
+	</canvas>
+	
+	
+	<script>
+	const Direction = {
+	  Up: 1,
+	  Down: 2,
+	  Left: 3,
+	  Right: 4,
+	}
+	var head = [250,250]
+	var tail = Array()
+	var fruit = [Math.floor(Math.random()*16)*50,Math.floor(Math.random()*12)*50]
+	var intervalID
+	var canvas = document.getElementById("game")
+	var ctx = canvas.getContext("2d")
+	var dir = Direction.Down
+	var last_dir = Direction.Up
+	step = 50
+	window.onload = function()
+	{
+		intervalID = setInterval(gameloop,150)
+		document.addEventListener("keydown", keydown);
+	}
+	
+	
+	
+	function keydown(evt){
+		switch(evt.keyCode){
+			case 65: 
+			if(last_dir != Direction.Right)dir = Direction.Left; break;
+			case 68:
+			if(last_dir != Direction.Left) dir = Direction.Right; break;
+			case 87:
+			if(last_dir != Direction.Down) dir = Direction.Up; break;
+			case 83:
+			if(last_dir != Direction.Up) dir = Direction.Down; break;
+		}
+	}
+	
+
+	function gameloop(){
+		printScreen()
+		gameLogic()
+	}
+	
+	function gameLogic(){
+		move_tail()
+		switch(dir){
+			case Direction.Up: head[1]-=step; break;
+			case Direction.Down: head[1]+=step; break;
+			case Direction.Left: head[0]-=step; break;
+			case Direction.Right: head[0]+=step; break;
+		}
+		last_dir = dir
+		for(var i = 0; i < tail.length; ++i)
+			if(head[0] == tail[i][0] && head[1] == tail[i][1])
+				clearInterval(intervalID)
+		if (head[0] == fruit[0] && head[1] == fruit[1]){
+			generate_fruit()
+			add_tail()	
+		}
+		if(head[0] < 0 || head[0] > 750 || head[1] < 0 || head[1] > 550)
+				clearInterval(intervalID)
+		
+	}
+	
+	function generate_fruit(){
+		var no_duplicate = true
+		while(no_duplicate){
+			no_duplicate = false
+			fruit[0] = Math.floor(Math.random()*16)*50
+			fruit[1] = Math.floor(Math.random()*12)*50
+			if(fruit[0] == head[0] && fruit[1] == head[1])
+				no_duplicate = true
+			for(var i = 0; i < tail.length; ++i)
+				if(fruit[0] == tail[i][0] && fruit[1] == tail[i][1])
+					no_duplicate = true
+		}
+	}
+	
+	
+	function add_tail(){
+		if(tail.length == 0)
+			tail.push([head[0],head[1]])
+		else
+			tail.push([tail[tail.length - 1][0],tail[tail.length - 1][1]])
+	}
+	
+	function move_tail(){
+		if (tail.length == 0)
+			return 
+		for(var i = tail.length - 1; i>0; --i){
+			tail[i][0] = tail[i-1][0]
+			tail[i][1] = tail[i-1][1]
+			}
+		tail[0][0] = head[0]
+		tail[0][1] = head[1]
+	}
+	
+	
+	function printScreen(){
+		//canvas
+		ctx.fillStyle = "#8c8b65"
+		ctx.fillRect(0, 0, canvas.width, canvas.height)
+		
+		
+		
+		//our player
+		ctx.fillStyle = "#00F"
+		ctx.fillRect(head[0], head[1], 50, 50);
+		
+		
+		//tail
+		ctx.fillStyle = "#000"
+		for(var i = 0; i<tail.length; ++i)
+			ctx.fillRect(tail[i][0],tail[i][1], 50, 50);
+		
+		//fruit
+		ctx.fillStyle = "#f2da02"
+		ctx.fillRect(fruit[0],fruit[1],50,50)
+		
+		
+		//grid
+		ctx.fillStyle = "#000"
+		for(var i = 0; i<canvas.width; i+=50)
+				ctx.fillRect(i,0,1,canvas.height);
+		for(var i = 0; i<canvas.height; i+=50)
+				ctx.fillRect(0,i,canvas.width,1);
+		}
+	
+	
+	
+		</script>
+	   </BODY>
+</HTML>

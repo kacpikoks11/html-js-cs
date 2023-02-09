@@ -1,0 +1,90 @@
+<HTML>
+   <HEAD>
+      <TITLE>kacpikoks</TITLE>
+   </HEAD>
+   <BODY>
+	<canvas id = "game" width = "800" height = "600">
+	</canvas>
+		<script>
+		var canvas = document.getElementById("game")
+		var ctx = canvas.getContext("2d")
+		var fps = 144000000
+		var block1 = [100,500,20,20]
+		var block2 = [700,500,50,50]
+		var wall = [0,0,1,600]
+		var col_counter = 0
+		block1_vel = 0
+		block2_vel = -100000000
+		window.onload = function()
+		{
+			setInterval(simulationloop,1000/fps)
+		}
+		
+		function simulationloop(){
+			printScreen()
+			logic()
+		}
+		
+		function logic(){
+			block2[0] += block2_vel/fps
+			block1[0] += block1_vel/fps
+			col_counter += block_collision()
+			col_counter += wall_collision()
+			wall_collision2()
+			console.log(col_counter)
+			
+		}
+		
+		function block_collision(){
+		mass_block1 = 1
+		mass_block2 = 1000
+		if(block1[0] + block1[2] > block2[0]){
+			temp1 = block1_vel
+			temp2 = block2_vel
+			block1_vel = (block1_vel*(mass_block1-mass_block2) + 2*mass_block2*temp2)/(mass_block1+mass_block2)
+			block2_vel = (block2_vel*(mass_block2-mass_block1) + 2*mass_block1*temp1)/(mass_block1+mass_block2)
+			return 1
+			}	
+			return 0
+		}
+		
+		function wall_collision(){
+			if(block1[0] + block1_vel/fps < 1){
+				block1_vel = -block1_vel
+				return 1
+				}
+			return 0
+		}
+		function wall_collision2(){
+		if(block2[0]<1)
+		block2[0]= block1[0]+5
+		}
+	
+		
+		
+		
+		
+		
+		
+		
+		
+
+		
+		
+		function printScreen(){
+		//canvas
+		ctx.fillStyle = "#8c8b65"
+		ctx.fillRect(0, 0, canvas.width, canvas.height)
+		
+		ctx.fillStyle = "#00F"
+		ctx.fillRect(block1[0],block1[1],block1[2],block1[3])
+		
+		ctx.fillStyle = "#000000"
+		ctx.fillRect(block2[0],block2[1],block2[2],block2[3])
+		ctx.fillRect(wall[0],wall[1],wall[2],wall[3])
+
+		}
+		
+		</script>
+	   </BODY>
+</HTML>

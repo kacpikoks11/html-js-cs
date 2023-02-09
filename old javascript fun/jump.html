@@ -1,0 +1,170 @@
+<HTML>
+   <HEAD>
+      <TITLE>kacpikoks</TITLE>
+   </HEAD>
+   <BODY>
+	<h1>Game</h1>
+	<canvas id = "game" width = "800" height = "600">
+	</canvas>
+	
+	<script>
+	x = 0	
+	y = 0
+	var fps = 144
+	var canvas = document.getElementById("game")
+	var ctx = canvas.getContext("2d")
+	var left = false
+	var right = false
+	var jump = false
+	var speed = 2
+	var gravityForce = 0
+	
+	var playercoords = [x, y, 50, 50]
+	var floors = [[-1,0,0,600],[800,0,0,600],[0, 590, 800, 10],
+	[600,540,100,50],[400,450,50,50],[500,300,50,50],[300,150,50,50],
+	[120,300,50,50],[51,0,1,500]]
+	var enemy = [[250,590,150,10]] 
+	
+	window.onload = function()
+	{
+		setInterval(gameloop,1000/fps)
+		document.addEventListener("keydown", keydown);
+		document.addEventListener("keyup", keyup);
+	}
+	
+	function gameloop(){
+		gameLogic()
+		printScreen()
+	}
+	
+	function gameLogic(){
+		if(right)
+			if(!sideCollision(playercoords[0]+speed,playercoords[1]))
+				playercoords[0] += speed
+		if(left)
+			if(!sideCollision(playercoords[0]-speed,playercoords[1]))
+				playercoords[0] -= speed
+		if (jump && gravityForce == 0)
+			gravityForce = -4
+			
+			
+		
+		
+		//gravity
+		if(gravityForce<5) 
+			gravityForce += 0.05 
+		if(enemy_collision())
+			{
+			playercoords[0] = 0
+			playercoords[1] = 0
+			gravityForce = 1
+			}
+		if (potBottomCollision(playercoords[0] ,playercoords[1] + gravityForce) && gravityForce>0)
+			gravityForce = 0
+		if(!bottomCollision(playercoords[0],playercoords[1] + gravityForce))
+			playercoords[1] += gravityForce
+		else
+			gravityForce = 0.05
+	}
+
+
+	function enemy_collision(){
+		for (var i = 0; i < enemy.length; ++i)
+			if(floorCollision(playercoords[0],playercoords[1] + gravityForce,enemy[i]))
+				return true;
+	}
+	
+	// side/bottom collision
+	function sideCollision(X,Y){
+			for(var i = 0; i<floors.length; ++i){
+				if(Y+playercoords[3]<floors[i][1])
+					continue
+				if(Y>floors[i][1]+ floors[i][3])
+					continue
+				if(X>floors[i][0]+ floors[i][2])
+					continue
+				if(X+playercoords[2]< floors[i][0])
+					continue				
+				return true
+			}
+			return false		
+	}
+	
+	function bottomCollision(X,Y){
+		for(var i = 0; i<floors.length; ++i){
+				if(X > floors[i][0]+ floors[i][2])
+					continue
+				if(X + playercoords[2] < floors[i][0])
+					continue
+				if(Y > floors[i][1] + floors[i][3])
+					continue
+				if(Y + playercoords[3] < floors[i][1])
+					continue
+				return true
+			}
+			return false
+	}
+	
+	//Gravity stop collision
+	function floorCollision(X,Y,floor_coords){
+		if(Y + playercoords[3]<floor_coords[1] - 0.5)
+			return false
+		if(Y > floor_coords[1] +floor_coords[3])
+			return false
+		if(X+playercoords[2]>=floor_coords[0] && X+playercoords[2] <= floor_coords[0]+floor_coords[2])
+			return true
+		if(X <= floor_coords[0]+ floor_coords[2] && X+playercoords[2]>=floor_coords[0]+ floor_coords[2])
+			return true
+		return false
+	}
+	
+	function potBottomCollision(X,potY){
+		for(var i = 0; i<floors.length; ++i)
+			if (floorCollision(X, potY, floors[i]))
+				return true;
+				
+		return false
+	}
+	
+// control
+	function keydown(evt){
+		switch(evt.keyCode){
+			case 87: jump = true; break;
+			case 32: jump = true; break;
+			case 65: left = true; break;
+			case 68: right = true; break;
+		}
+	}
+	
+	function keyup(evt){
+		switch(evt.keyCode){
+			case 87: jump = false; break;
+			case 32: jump = false; break;
+			case 65: left = false; break;
+			case 68: right = false; break;
+		}
+	}
+	
+	function printScreen(){
+		//canvas
+		ctx.fillStyle = "#8c8b65"
+		ctx.fillRect(0, 0, canvas.width, canvas.height)
+		
+		//our player
+		ctx.fillStyle = "#00F"
+		ctx.fillRect(playercoords[0], playercoords[1], playercoords[2], playercoords[3]);
+	
+		//floor and obsticles
+		ctx.fillStyle = "#000000"
+		for (var i = 0; i < floors.length; ++i)
+			ctx.fillRect(floors[i][0], floors[i][1], floors[i][2], floors[i][3]);
+			
+			
+		// enemy
+		ctx.fillStyle = "#fc031c"
+		for (var i = 0; i < enemy.length; ++i)
+			ctx.fillRect(enemy[i][0], enemy[i][1], enemy[i][2], enemy[i][3]);
+	}
+	</script>
+   </BODY>
+</HTML>

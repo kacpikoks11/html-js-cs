@@ -1,0 +1,136 @@
+<HTML>
+   <HEAD>
+      <TITLE>kacpikoks</TITLE>
+   </HEAD>
+   <BODY>
+	<canvas id = "game" width = "801" height = "601">
+	</canvas>
+	<script>
+	var fps = 144
+	var canvas = document.getElementById("game")
+	var ctx = canvas.getContext("2d")
+	
+	var up = false
+	var down = false
+	var left = false
+	var right = false
+	
+	var player = [-25,-25,50,50]
+	var obsticles = [[100,100,100,30],[-100,200,30,75],[150,-200,50,50],[-100,-500,30,30]]
+	
+	var speed = 1
+	var angle = 0
+	
+	window.onload = function()
+	{
+		setInterval(gameloop,1000/fps)
+		document.addEventListener("keydown", keydown);
+		document.addEventListener("keyup", keyup);
+	}
+	
+	function keydown(evt){
+		switch(evt.keyCode){
+			case 87: up = true; break;
+			case 83: down = true; break;
+			case 65: left = true; break;
+			case 68: right = true; break;
+		}
+	}
+	
+	function keyup(evt){
+		switch(evt.keyCode){
+			case 87: up = false; break;
+			case 83: down = false; break;
+			case 65: left = false; break;
+			case 68: right = false; break;
+		}
+	}
+	
+	function gameloop(){
+		gameLogic()
+		printScreen()
+	}
+	
+	function gameLogic(){
+		if(up)
+			moveobsticles(1)
+		if(down)
+			moveobsticles(-1)
+		if(left)
+			angle += speed
+		if(right)
+			angle -= speed
+	}
+	
+	function moveobsticles(dir){
+		var new_obsticles = []
+		for (var i = 0; i < obsticles.length; ++i)
+		{
+			new_obsticle = []
+			if(dir == 1){
+				new_obsticle[0] = obsticles[i][0] + speed * (0 * Math.cos(angle * Math.PI / 180) + 1 * Math.sin(angle * Math.PI / 180))
+				new_obsticle[1] = obsticles[i][1] + speed * (-1 * 0 * Math.sin(angle * Math.PI / 180) + 1 * Math.cos(angle* Math.PI / 180))
+			}
+			else
+			{
+				new_obsticle[0] = obsticles[i][0] -speed * (0 * Math.cos(angle * Math.PI / 180) + 1 * Math.sin(angle * Math.PI / 180))
+				new_obsticle[1] = obsticles[i][1] -speed * (-1 * 0 * Math.sin(angle * Math.PI / 180) + 1 * Math.cos(angle* Math.PI / 180))
+			}
+			new_obsticle[2] = obsticles[i][2]
+			new_obsticle[3] = obsticles[i][3]
+			new_obsticles.push(new_obsticle)
+		}
+		if (potCol(new_obsticles))
+			return
+		obsticles = new_obsticles
+	}
+	
+	function potCol(pot_obsticles){
+		left_top = [player[0],player[1]]
+		right_down = [player[0]+player[2],player[1]+player[3]]
+		for (var i = 0;i<pot_obsticles.length;++i)
+		{
+			ob_lt = [pot_obsticles[i][0],pot_obsticles[i][1]]
+			console.log(ob_lt)
+			ob_rd = [pot_obsticles[i][0] + pot_obsticles[i][2],pot_obsticles[i][1] + pot_obsticles[i][3]]
+			if(right_down[0]<ob_lt[0] || left_top[0]>ob_rd[0])
+				continue
+			if(right_down[1]<ob_lt[1] || left_top[1]>ob_rd[1])
+				continue
+			return true
+			
+		}
+		return false
+	}
+	
+	
+	
+	function printScreen(){
+		//canvas
+		ctx.fillStyle = "#8c8b65"
+		ctx.fillRect(0, 0, canvas.width, canvas.height)
+		ctx.translate (400,300)
+		
+		//our player
+		ctx.fillStyle = "#00F"
+		ctx.fillRect(player[0]+5,player[1]+5,player[2]-10,player[3]-10);
+		
+		
+		
+		ctx.rotate(angle * Math.PI / 180);
+		ctx.fillStyle = "#000"
+		for (var i = 0; i < obsticles.length; ++i)
+			ctx.fillRect(obsticles[i][0],obsticles[i][1],obsticles[i][2],obsticles[i][3])
+		ctx.setTransform(1, 0, 0, 1, 0, 0);
+	}
+	
+	
+	
+	
+	
+	
+	</script>
+	</BODY>
+</HTML>
+	
+	

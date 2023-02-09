@@ -1,0 +1,28 @@
+body{
+    margin:10px 0 0 10px;
+    background-color: rgb(27, 25, 25);
+    color: white;
+  }
+  .button-container{
+    display:flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+
+    
+  }
+  .list{
+    display:flex;
+    flex-direction: column;
+  }
+
+  .cards{
+    margin-top: 50px;
+    display: flex;
+    position: relative;
+    background-color: grey;
+  }
+
+  .text{
+    display: flex;
+  }

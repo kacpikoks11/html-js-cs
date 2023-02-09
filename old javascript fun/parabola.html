@@ -1,0 +1,63 @@
+<HTML>
+   <HEAD>
+      <TITLE>kacpikoks</TITLE>
+   </HEAD>
+   <BODY>
+	<canvas id = "game" width = "800" height = "600">
+	</canvas>
+		<script>
+		var canvas = document.getElementById("game")
+		var ctx = canvas.getContext("2d")
+		var fps = 144
+		var block1 = [100,500,5,5]
+		var wall = [0,0,1,600]
+		var col_counter = 0
+		var y_vel = -150
+		var x_vel = 150
+		
+		block1_vel = 0
+		window.onload = function()
+		{
+			setInterval(simulationloop,1000/fps)
+		}
+		
+		function simulationloop(){
+			printScreen()
+			logic()
+		}
+		
+		function logic(){
+			block1[0] += x_vel/fps
+			block1[1] += y_vel/fps
+			y_vel += 9.8/3
+			
+		}
+		
+
+		
+		
+		
+		
+		
+		
+		
+		
+
+		
+		
+		function printScreen(){
+		//canvas
+		ctx.fillStyle = "#8c8b65"
+		ctx.fillRect(0, 0, canvas.width, canvas.height)
+		
+		ctx.fillStyle = "#00F"
+		ctx.fillRect(block1[0],block1[1],block1[2],block1[3])
+		
+		ctx.fillStyle = "#000000"
+		ctx.fillRect(wall[0],wall[1],wall[2],wall[3])
+
+		}
+		
+		</script>
+	   </BODY>
+</HTML>
