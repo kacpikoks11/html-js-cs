@@ -1,0 +1,91 @@
+body{
+    background-color: rgb(61, 54, 54);
+    color:rgb(195, 186, 186);
+    font-size: large;
+    margin: 100px 0 0 0;   
+}
+
+header{
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background-color: white;
+    z-index: 100;
+    border-bottom: 1px solid black;
+    color: black;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px 0 10px;
+    
+}
+
+nav{
+    display: flex;
+    position: fixed;
+    top: 100px;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    background-color: white;
+    border-right: 1px solid black;
+    z-index: 101;
+    
+}
+
+.main-container{
+    display: flex;
+    justify-content: center;
+}
+
+main{
+    width: 500px;
+    height: 200vh;
+    position: relative;
+    margin-top: 30px;
+    background-color: chocolate;
+    border-radius: 10px;
+}
+
+.window{
+    position: absolute;
+    width: 100px;
+    height: 500px;
+    background-color: blue;
+    right: -150px;
+    
+    border-radius: 10px;   
+    box-shadow: 5px 5px rgb(71, 71, 71); 
+
+    transition: width 200ms;
+}
+
+
+.window:hover{
+    width: 150px;
+}
+
+.top-bar{
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 100px;
+    background-color: bisque;
+    border-radius: 10px;
+
+    transition: height 200ms;
+}
+
+.top-bar:hover{
+    height: 150px;
+}
+
+
+
+nav:has(button:hover){
+    background-color: blue;
+}
+
